@@ -7,8 +7,6 @@ import java.io.IOException;
 
 public class MainGUI extends JFrame {
 
-    private final JButton zipToBase64Button;
-    private final JButton base64ToZipButton;
     private final JFileChooser fileChooser;
 
 
@@ -22,7 +20,7 @@ public class MainGUI extends JFrame {
 
         fileChooser = new JFileChooser();
 
-        zipToBase64Button = new JButton("ZIP to Base64");
+        JButton zipToBase64Button = new JButton("ZIP to Base64");
 
         zipToBase64Button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -31,7 +29,7 @@ public class MainGUI extends JFrame {
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     try {
-                        Converter.toBase64(selectedFile);
+                        Converter.toBase64(selectedFile, 10);
                         JOptionPane.showMessageDialog(null, "ZIP to Base64 Done!", "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
                     } catch (IOException error) {
                         JOptionPane.showMessageDialog(null, error.getMessage(), "FAIL", JOptionPane.INFORMATION_MESSAGE);
@@ -43,7 +41,7 @@ public class MainGUI extends JFrame {
             }
         });
 
-        base64ToZipButton = new JButton("Base64 to ZIP");
+        JButton base64ToZipButton = new JButton("Base64 to ZIP");
         base64ToZipButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
@@ -51,10 +49,14 @@ public class MainGUI extends JFrame {
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File[] selectedFiles = fileChooser.getSelectedFiles();
-                    String outputFileName = new String();
-                    Converter.toZip(outputFileName, selectedFiles);
+                    String outputFileName = "TestZip.zip";
+                    try {
+                        Converter.toZip(outputFileName, selectedFiles);
+                        JOptionPane.showMessageDialog(null, "Base64 to ZIP done", "Notice", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (IOException error) {
+                        JOptionPane.showMessageDialog(null, error.getMessage(), "FAIL", JOptionPane.INFORMATION_MESSAGE);
+                    }
 
-                    JOptionPane.showMessageDialog(null, "Base64 to ZIP done", "Notice", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
