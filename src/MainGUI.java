@@ -7,9 +7,9 @@ import java.io.IOException;
 
 public class MainGUI extends JFrame {
 
-    private JButton zipToBase64Button;
-    private JButton base64ToZipButton;
-    private JFileChooser fileChooser;
+    private final JButton zipToBase64Button;
+    private final JButton base64ToZipButton;
+    private final JFileChooser fileChooser;
 
 
     public MainGUI() {
