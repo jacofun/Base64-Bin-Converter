@@ -23,7 +23,7 @@ public class MainGUI extends JFrame {
         fileChooser = new JFileChooser();
 
         zipToBase64Button = new JButton("ZIP to Base64");
-        //inner class instance
+
         zipToBase64Button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 fileChooser.setMultiSelectionEnabled(false);
@@ -44,11 +44,9 @@ public class MainGUI extends JFrame {
         });
 
         base64ToZipButton = new JButton("Base64 to ZIP");
-        //inner class instance
         base64ToZipButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-//                Base64ToZipGUI base64ToZipGUI = new Base64ToZipGUI();
-//                base64ToZipGUI.setVisible(true);
+
                 fileChooser.setMultiSelectionEnabled(true);
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
