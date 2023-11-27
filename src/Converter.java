@@ -1,4 +1,6 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import javax.xml.bind.DatatypeConverter;
 
 public class Converter {
@@ -9,7 +11,7 @@ public class Converter {
 
         String inputFileName = inputZipFile.getAbsolutePath();
 
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFileName));
+        BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(inputFileName)));
 
         byte[] buffer = new byte[3 * 1024]; // 3 B buffer
         int fileCount = 0;
@@ -46,7 +48,7 @@ public class Converter {
 
         for (File inputTxtFile : inputTxtFiles) {
             BufferedReader br = new BufferedReader(new FileReader(inputTxtFile));
-            char[] buffer = new char[4]; // bug:读取一段转换一段会存在转换不完全而出错（如果读取的buffer不是4的整倍数），一般来说，base64的转换方法是每三个字节转换为4个字符
+            char[] buffer = new char[4]; // 姣忓洓涓瓧绗﹁浆鎹负涓変釜瀛楄妭
 
             while ((br.read(buffer)) != -1) {
                 String str = new String(buffer);
