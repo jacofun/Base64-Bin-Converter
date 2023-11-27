@@ -29,7 +29,7 @@ public class MainGUI extends JFrame {
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     try {
-                        Converter.toBase64(selectedFile, 10);
+                        Converter.toBase64(selectedFile, 6);
                         JOptionPane.showMessageDialog(null, "ZIP to Base64 Done!", "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
                     } catch (IOException error) {
                         JOptionPane.showMessageDialog(null, error.getMessage(), "FAIL", JOptionPane.INFORMATION_MESSAGE);
