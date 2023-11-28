@@ -1,65 +1,93 @@
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import javax.xml.bind.DatatypeConverter;
 
 public class Converter {
+    public static void toBase64(String inputFileName) {
+        //if (args.length != 3) {
+        //    System.out.println("Usage: java ZipToBase64 <input_zip_file_name> <output_txt_file_name> <number_of_parts>");
+        //    return;
+        //}
+        //String inputZipFileName = args[0];
+        //String outputTxtFileName = args[0];
+        //int numberOfParts = Integer.parseInt(args[2]);
 
-    public static void toBase64(File inputZipFile, int numOfFileParts) throws IOException {
+        try {
+            InputStream inputStream = new FileInputStream(inputFileName);
+            BufferedInputStream bis = new BufferedInputStream(inputStream);
 
-        long inputZipFileSizeInByte = inputZipFile.length();
+            StringBuilder base64StringBuilder = new StringBuilder();
+            byte[] buffer = new byte[4 * 1024]; // 3 KB buffer
+            int bytesRead;
 
-        String inputFileName = inputZipFile.getAbsolutePath();
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                byte[] tempBuffer = bytesRead == buffer.length ? buffer : java.util.Arrays.copyOf(buffer, bytesRead);
+                base64StringBuilder.append(DatatypeConverter.printBase64Binary(tempBuffer));
+            }
 
-        BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(inputFileName)));
+            bis.close();
 
-        byte[] buffer = new byte[3 * 1024]; // 3 B buffer
-        int fileCount = 0;
-        long bytesConverted = 0;
-        BufferedWriter bw = new BufferedWriter(new FileWriter(inputZipFile.getAbsolutePath() + "_part_" + fileCount + ".txt", true));
-        while (bis.read(buffer) != -1) {
-            if (bytesConverted >= (inputZipFileSizeInByte / numOfFileParts) ){
-                bytesConverted = 0;
+            String base64String = base64StringBuilder.toString();
+
+            int length = base64String.length();
+			int partLength = 5000;//5k per file
+			int numberOfParts = length / partLength + 1;
+
+            for (int i = 0; i < numberOfParts; i++) {
+                String partFileName = inputFileName + "_part_" + (i + 1) + ".txt";
+                BufferedWriter bw = new BufferedWriter(new FileWriter(partFileName));
+
+                if (i == numberOfParts - 1) {
+                    // Write the remaining part of the string to the last file
+                    bw.write(base64String, i * partLength, length - i * partLength);
+                } else {
+                    bw.write(base64String, i * partLength, partLength);
+                }
                 bw.close();
-                fileCount++;
-                bw = new BufferedWriter(new FileWriter(inputZipFile.getAbsolutePath() + "_part_" + fileCount + ".txt", true));
             }
-
-            String str = DatatypeConverter.printBase64Binary(buffer);
-            bw.write(str);
-            bw.flush();
-            bytesConverted = bytesConverted + buffer.length;
+        } catch (IOException e) {
+            System.err.println("IOException: " + e.getMessage());
         }
-
-        bw.close();
-        bis.close();
     }
 
-	
-    public static void toZip(String outputZipFileName, File[] inputTxtFiles) throws IOException {
 
-        if(outputZipFileName.isEmpty()){
-            outputZipFileName = inputTxtFiles[0].getParent() + "\\UnnamedCombined.zip"; 
-        } else{
-            outputZipFileName = inputTxtFiles[0].getParent() + "\\" + outputZipFileName;
-          }
+    public static String toBin(String[] args) {
+        String outputZipFileName = args[0];
 
-        FileOutputStream fos = new FileOutputStream(outputZipFileName, true);
+        int fileCount = args.length==1 ? 1 : args.length - 1;
+        //System.out.println(fileCount);
+        String[] inputTxtFileNames = new String[fileCount];
+        if (fileCount > 1){
+            System.arraycopy(args, 1, inputTxtFileNames, 0, fileCount);
+        } else inputTxtFileNames = args;
 
-        for (File inputTxtFile : inputTxtFiles) {
-            BufferedReader br = new BufferedReader(new FileReader(inputTxtFile));
-            char[] buffer = new char[4]; // 每四个字符转换为三个字节
 
-            while ((br.read(buffer)) != -1) {
-                String str = new String(buffer);
-                byte[] decodedBytes = DatatypeConverter.parseBase64Binary(str);
-                fos.write(decodedBytes);
-                fos.flush();
+
+
+        try {
+            StringBuilder base64StringBuilder = new StringBuilder();
+            for (String inputTxtFileName : inputTxtFileNames) {
+                //System.out.println(inputTxtFileName);
+                BufferedReader br = new BufferedReader(new FileReader(inputTxtFileName));
+                char[] buffer = new char[4 * 1024]; // 4 KB buffer
+                int charsRead;
+
+                while ((charsRead = br.read(buffer)) != -1) {
+                    base64StringBuilder.append(buffer, 0, charsRead);
+                }
+
+                br.close();
             }
 
-            br.close();
-        }
+            String base64String = base64StringBuilder.toString();
+            byte[] decodedBytes = DatatypeConverter.parseBase64Binary(base64String);
 
-        fos.close();
-    }
+            FileOutputStream fos = new FileOutputStream(outputZipFileName + ".bin");
+            fos.write(decodedBytes);
+            fos.close();
+
+            return "Convert to " + outputZipFileName + ".bin" + " successfully.";
+        } catch (IOException e) {
+            return e.getMessage();
+        }
+    }	
 }
